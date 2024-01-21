@@ -1,0 +1,16 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body {
+    height: 100%;
+}
+
+
+.circle-front {
+    stroke-width: 2.5;
+    transform: rotate(-90deg);
+    stroke-linecap: round;
+    transition: stroke-dasharray 1s ease-in-out 0.2s, opacity 0.5s linear 0.2s;
+}
