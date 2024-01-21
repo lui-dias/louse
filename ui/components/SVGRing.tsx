@@ -10,7 +10,7 @@ export default function ({ percentage, label }: Props) {
 
     const color = percentage < 50 ? 'red' : percentage < 90 ? 'yellow' : 'green'
 
-    const circumference = 2 * Math.PI * 15
+    const circumference = 2 * Math.PI * 13.75
 
     useEffect(() => {
         const circle = document.getElementById(id) as HTMLElement
@@ -20,7 +20,7 @@ export default function ({ percentage, label }: Props) {
 
     return (
         <>
-            <div class='relative w-20 h-20 flex flex-col'>
+            <div class='relative w-20 h-20 flex flex-col overflow-visible'>
                 <svg
                     viewBox='0 0 32 32'
                     class='absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full fill-red-600/30'
