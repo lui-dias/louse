@@ -221,6 +221,7 @@ async function startCrawl() {
                 status: STATUS.IN_PROGRESS,
                 data: {},
             })
+
             const cachedBenchmarkIndex = await getCachedBenchmarkIndex()
 
             send({
@@ -442,7 +443,7 @@ async function startUI() {
 
 const args = parseArgs(Deno.args, {
     string: ['max-urls', 'exclude'],
-    boolean: ['view', 'reload-benchmark', 'reload-tests'],
+    boolean: ['reload-benchmark', 'reload-tests'],
 })
 
 const {

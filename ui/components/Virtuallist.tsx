@@ -13,8 +13,6 @@ export default function <T>({ data, rowHeight, renderRow, overscanCount }: Props
     const offset = useSignal(0)
     const height = useSignal(0)
 
-    // console.log(data.length)
-
     // first visible row index
     let start = (offset.value / rowHeight) | 0
 

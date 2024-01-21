@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'preact/hooks'
 import { effect, useComputed, useSignal } from '@preact/signals'
 
-import { EVENTS, STATUS, Message } from '../../types.ts'
+import { EVENTS, STATUS, Message, UsefulInfo } from '../../types.ts'
 import Loading from './Loading.tsx'
 import SVGRing from './SVGRing.tsx'
 import Virtuallist from './Virtuallist.tsx'
@@ -38,11 +38,28 @@ export default function () {
     const dialog = useRef<HTMLDialogElement>(null)
     const search = useSignal('')
 
-    effect(() => {
-        if (search.value) {
-            console.log('filtered', filteredCrawledUrls.value)
-        }
-    })
+    const filteredIds = useComputed(() => new Set(Object.keys(filteredCrawledUrls.value)))
+
+    function calcAvg(metric: keyof UsefulInfo['scores']) {
+        const filteredResults = search.value
+            ? Object.fromEntries(
+                  Object.entries(results.value).filter(([id, _]) => filteredIds.value.has(id)),
+              )
+            : results.value
+
+        return Math.round(
+            Object.values(filteredResults).reduce(
+                (acc, { scores }) => acc + scores[metric] * 100,
+                0,
+            ) / Object.values(filteredResults).length,
+        )
+    }
+
+    const performanceAvg = useComputed(() => calcAvg('performance'))
+    const seoAvg = useComputed(() => calcAvg('seo'))
+    const accessibilityAvg = useComputed(() => calcAvg('accessibility'))
+    const bestPracticesAvg = useComputed(() => calcAvg('bestPractices'))
+    const pwaAvg = useComputed(() => calcAvg('pwa'))
 
     useEffect(() => {
         const socket = new WebSocket('ws://localhost:3819')
@@ -91,6 +108,7 @@ export default function () {
 
     return (
         <>
+            {/* biome-ignore lint/a11y/useKeyWithClickEvents: <explanation> */}
             <dialog
                 ref={dialog}
                 class='w-full max-w-3xl h-[600px] backdrop:bg-black/50'
@@ -101,7 +119,7 @@ export default function () {
                         <iframe
                             class='w-full h-full'
                             src={`http://localhost:8293/view?id=${viewingTest.value}`}
-                            title='a'
+                            title='View pagespeed test'
                         />
                     </form>
                 )}
@@ -118,6 +136,19 @@ export default function () {
                         }}
                     />
                 </div>
+
+                <div class='mb-3 bg-gray-900 px-4 pt-4 pb-10 rounded'>
+                    <span class='text-gray-200 font-2xl font-bold block mb-4'>Average</span>
+
+                    <div class='flex gap-6'>
+                        <SVGRing label='Performance' percentage={performanceAvg.value || 0} />
+                        <SVGRing label='Accessibility' percentage={accessibilityAvg.value || 0} />
+                        <SVGRing label='Best Practices' percentage={bestPracticesAvg.value || 0} />
+                        <SVGRing label='SEO' percentage={seoAvg.value || 0} />
+                        <SVGRing label='PWA' percentage={pwaAvg.value || 0} />
+                    </div>
+                </div>
+
                 <ul class='flex flex-col'>
                     <Virtuallist
                         data={Object.entries(
@@ -169,6 +200,12 @@ export default function () {
                                                         label='SEO'
                                                         percentage={Math.round(
                                                             result.scores.seo * 100,
+                                                        )}
+                                                    />
+                                                    <SVGRing
+                                                        label='PWA'
+                                                        percentage={Math.round(
+                                                            result.scores.pwa * 100,
                                                         )}
                                                     />
                                                 </div>
